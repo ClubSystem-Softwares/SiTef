@@ -8,8 +8,7 @@ use GuzzleHttp\{
     Client,
     Exception\ClientException,
     Exception\ServerException,
-    Psr7\Request
-};
+    Psr7\Request};
 
 /**
  * Http
@@ -20,17 +19,24 @@ use GuzzleHttp\{
  */
 class Http
 {
-    protected $config;
+    protected $env;
 
-    public function __construct(Environment $config)
+    public function __construct(Environment $env)
     {
-        $this->config = $config;
+        $this->env = $env;
     }
 
-    public function request(string $verb, string $url, array $body, array $headers = [])
+    public function get($uri)
     {
+        return $this->request('GET', $this->buildUrl($uri));
+    }
+
+    public function request(string $verb, string $url, array $body = [], array $headers = [])
+    {
+        $headers = array_merge($this->baseHeaders(), $headers);
+
         $client  = new Client(['base_url' => null]);
-        $request = new Request($verb, $url, $headers, $body);
+        $request = new Request($verb, $url, $headers, json_encode($body));
 
         try {
             $response = $client->send($request);
@@ -40,5 +46,27 @@ class Http
         } catch ( ClientException | ServerException $e ) {
             throw new SiTefException($e->getMessage());
         }
+    }
+
+    public function buildUrl(string $uri)
+    {
+        return sprintf('%s/%s',
+            $this->env,
+            $uri
+        );
+    }
+
+    public function post($uri, $data)
+    {
+        return $this->request('POST', $this->buildUrl($uri), $data);
+    }
+
+    public function baseHeaders() : array
+    {
+        return [
+            'merchant_id'  => $this->env->getMerchantId(),
+            'merchant_key' => $this->env->getMerchantKey(),
+            'Content-Type' => 'application/json'
+        ];
     }
 }
