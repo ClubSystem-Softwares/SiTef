@@ -2,7 +2,7 @@
 
 namespace CSWeb\SiTef\Http;
 
-use CSWeb\SiTef\AccessConfig;
+use CSWeb\SiTef\Environment;
 use CSWeb\SiTef\Exceptions\SiTefException;
 use GuzzleHttp\{
     Client,
@@ -22,7 +22,7 @@ class Http
 {
     protected $config;
 
-    public function __construct(AccessConfig $config)
+    public function __construct(Environment $config)
     {
         $this->config = $config;
     }
