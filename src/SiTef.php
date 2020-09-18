@@ -3,6 +3,7 @@
 namespace CSWeb\SiTef;
 
 use CSWeb\SiTef\Http\Http;
+use CSWeb\SiTef\Operations\Transaction;
 
 /**
  * SiTef
@@ -21,5 +22,9 @@ class SiTef
     {
         $this->env  = $env;
         $this->http = new Http($env);
+    }
+
+    public function addTransaction(Transaction $transaction)
+    {
     }
 }
