@@ -8,7 +8,9 @@ use GuzzleHttp\{
     Client,
     Exception\ClientException,
     Exception\ServerException,
-    Psr7\Request};
+    Psr7\Request
+};
+use stdClass;
 
 /**
  * Http
@@ -26,7 +28,7 @@ class Http
         $this->env = $env;
     }
 
-    public function get($uri)
+    public function get($uri) : stdClass
     {
         return $this->request('GET', $this->buildUrl($uri));
     }
@@ -42,7 +44,13 @@ class Http
             $response = $client->send($request);
             $content  = $response->getBody()->getContents();
 
-            return json_decode($content, true);
+            $content = json_decode($content);
+
+            if ( $content->code != 0 ) {
+                throw new SiTefException($content->message);
+            }
+
+            return $content;
         } catch ( ClientException | ServerException $e ) {
             throw new SiTefException($e->getMessage());
         }
@@ -56,7 +64,7 @@ class Http
         );
     }
 
-    public function post($uri, $data)
+    public function post($uri, $data) : stdClass
     {
         return $this->request('POST', $this->buildUrl($uri), $data);
     }
